@@ -11,11 +11,13 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ActionMenuView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
@@ -37,7 +39,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main);
 //        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 //        setSupportActionBar(toolbar);
 //
@@ -53,33 +55,61 @@ public class MainActivity extends Activity {
         txt_output = (EditText) findViewById(R.id.output_text);
         spinner_input = (Spinner) findViewById(R.id.units_spinner1);
         spinner_output = (Spinner) findViewById(R.id.units_spinner2);
+//        txt_input = new EditText(this);
+//        txt_output = new EditText(this);
+//        spinner_input = new Spinner(this);
+//        spinner_output = new Spinner(this);
         adapter_input = ArrayAdapter.createFromResource(this, R.array.measurements, android.R.layout.simple_spinner_item);
         adapter_output = ArrayAdapter.createFromResource(this, R.array.measurements, android.R.layout.simple_spinner_item);
 
         spinner_input.setAdapter(adapter_input);
+        spinner_input.setSelection(0);
         spinner_output.setAdapter(adapter_output);
-
-        LinearLayout layout_main = new LinearLayout(this);
-        layout_main.setOrientation(LinearLayout.VERTICAL);
-        LinearLayout layout_row1 = new LinearLayout(this);
-        layout_row1.addView(txt_input);
-        layout_row1.addView(spinner_input);
-
-
-        LinearLayout layout_row2 = new LinearLayout(this);
-        layout_row2.addView(txt_output);
-        layout_row2.addView(spinner_output);
-
-        setContentView(R.layout.activity_main);
+        spinner_output.setSelection(0);
+//
+//        LinearLayout layout_main = new LinearLayout(this);
+//        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.MATCH_PARENT );
+//        layout_main.setOrientation(LinearLayout.VERTICAL);
+//        layout_main.setLayoutParams(lp);
+//
+//        LinearLayout layout_row1 = new LinearLayout(this);
+//        layout_row1.setOrientation(LinearLayout.HORIZONTAL);
+//        lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT);
+//
+//        LinearLayout.LayoutParams params_txt = new LinearLayout.LayoutParams(100,
+//                LinearLayout.LayoutParams.WRAP_CONTENT);
+//        LinearLayout.LayoutParams params_spinner = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+//                LinearLayout.LayoutParams.WRAP_CONTENT);
+//        layout_row1.addView(txt_input, params_txt);
+//        layout_row1.addView(spinner_input, params_spinner);
+//        layout_row1.setLayoutParams(lp);
+//
+//        LinearLayout layout_row2 = new LinearLayout(this);
+//        layout_row2.setOrientation(LinearLayout.HORIZONTAL);
+//        lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT );
+//        layout_row2.setLayoutParams(lp);
+//        layout_row2.addView(txt_output, params_txt);
+//        layout_row2.addView(spinner_output, params_spinner);
+//
+//        TextView title_txt = new TextView(this);
+//        title_txt.setText("Units Converter");
+//        lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,LinearLayout.LayoutParams.WRAP_CONTENT );
+//        layout_main.addView(title_txt, lp);
+//        layout_main.addView(layout_row1);
+//        layout_main.addView(layout_row2);
+//
+//        setContentView(layout_main);
 
         // Handling the listeners
         spinner_input.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Double tmp = Double.parseDouble(txt_output.getText().toString());
-                int position_item2 = spinner_output.getSelectedItemPosition();
-                double result = convert(tmp, position, position_item2);
-                txt_output.setText("" + result);
+                if((txt_output.getText() != null) && (!txt_output.getText().toString().equals(""))) {
+                    Double tmp = Double.parseDouble(txt_output.getText().toString());
+                    int position_item2 = spinner_output.getSelectedItemPosition();
+                    double result = convert(tmp, position_item2, position);
+                    txt_input.setText("" + result);
+                }
             }
 
             @Override
@@ -91,10 +121,12 @@ public class MainActivity extends Activity {
         spinner_output.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Double tmp = Double.parseDouble(txt_input.getText().toString());
-                int position_item2 = spinner_input.getSelectedItemPosition();
-                double result = convert(tmp, position, position_item2);
-                txt_input.setText("" + result);
+                if((txt_input.getText() != null)  && (!txt_input.getText().toString().equals(""))){
+                    Double tmp = Double.parseDouble(txt_input.getText().toString());
+                    int position_item2 = spinner_input.getSelectedItemPosition();
+                    double result = convert(tmp, position_item2, position);
+                    txt_output.setText("" + result);
+                }
             }
 
             @Override
@@ -104,6 +136,14 @@ public class MainActivity extends Activity {
 
         });
     }
+
+    /**
+     * convert calculates a value amount of pos_input and returns it equivalent in pos_output units.
+     * @param value
+     * @param pos_input
+     * @param pos_output
+     * @return
+     */
     private double convert(double value, int pos_input, int pos_output){
         double result = 0;
         if((pos_input == 0) && (pos_output == 1)){
